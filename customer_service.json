@@ -1,0 +1,122 @@
+{
+    "slots": {
+        "0": {
+            "name": "setup_point",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "1": {
+            "name": "screen",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "2": {
+            "name": "slot3",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "3": {
+            "name": "slot4",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "4": {
+            "name": "slot5",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "5": {
+            "name": "slot6",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "6": {
+            "name": "slot7",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "7": {
+            "name": "slot8",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "8": {
+            "name": "slot9",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "9": {
+            "name": "slot10",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "-1": {
+            "name": "unit",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "-3": {
+            "name": "player",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "-2": {
+            "name": "construct",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "-4": {
+            "name": "system",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        },
+        "-5": {
+            "name": "library",
+            "type": {
+                "events": [],
+                "methods": []
+            }
+        }
+    },
+    "handlers": [
+        {
+            "code": "local json = require('json')\n\nlocal local_pos = vec3(setup_point.getPosition())\nlocal construct_pos = vec3(construct.getWorldPosition())\n\nfunction localToRelative(pos, up, forward, right)\n    local upX, upY, upZ = up:unpack()\n    local forwardX, forwardY, forwardZ = forward:unpack()\n    local rightX, rightY, rightZ = right:unpack()\n    local rfuX, rfuY, rfuZ = pos:unpack()\n    local relX = rfuX * rightX + rfuY * forwardX + rfuZ * upX\n    local relY = rfuX * rightY + rfuY * forwardY + rfuZ * upY\n    local relZ = rfuX * rightZ + rfuY * forwardZ + rfuZ * upZ\n    return vec3(relX, relY, relZ)\nend\n\nlocal wU = vec3(construct.getWorldUp())\n\n-- direction vectors\nlocal wF = vec3(construct.getWorldForward())\nlocal wR = vec3(construct.getWorldRight())\n\nlocal rel_pos = localToRelative(local_pos, wU, wF, wR)\nlocal axis_pos = construct_pos + rel_pos\n\n-- IMPORTANT!!!! if you want to change forward direction then change it to any of vectors above!\n-- eg:\n-- backward = -wF\n-- right = wR\n-- left = -wR\nF = wF\n\nbaseAxis = string.format(\"::pos{0,0,%f,%f,%f}\", wU.x, wU.y, wU.z)\nbasePosition = string.format(\"::pos{0,0,%f,%f,%f}\", axis_pos.x, axis_pos.y, axis_pos.z)\nbaseForward = string.format(\"::pos{0,0,%f,%f,%f}\", F.x, F.y, F.z)\n\nscreen.setRenderScript(string.format(\"baseAxis = \\\"%s\\\"\\nbasePosition = \\\"%s\\\"\\nbaseForward = \\\"%s\\\"\", baseAxis, basePosition, baseForward))",
+            "filter": {
+                "args": [],
+                "signature": "onStart()",
+                "slotKey": "-1"
+            },
+            "key": "0"
+        }
+    ],
+    "methods": [],
+    "events": []
+}

@@ -1,0 +1,140 @@
+{
+  "slots": {
+    "0": {
+      "name": "screen_left",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "1": {
+      "name": "screen_right",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "2": {
+      "name": "core",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "3": {
+      "name": "slot4",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "4": {
+      "name": "slot5",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "5": {
+      "name": "slot6",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "6": {
+      "name": "slot7",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "7": {
+      "name": "slot8",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "8": {
+      "name": "slot9",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "9": {
+      "name": "slot10",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "-1": {
+      "name": "unit",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "-3": {
+      "name": "player",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "-2": {
+      "name": "construct",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "-4": {
+      "name": "system",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "-5": {
+      "name": "library",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    }
+  },
+  "handlers": [
+    {
+      "code": "RSL = [[\nlocal json = require('dkjson')\n\n-- CONSTANTS ----------\nconstants = {}\nconstants.deg2rad = 0.0174532925199\nconstants.rad2deg = 57.2957795130\n\n-- helper functions ---\nfunction getData()\n    return json.decode(getInput()) or {}\nend\n\nfunction sendData(data)\n    setOutput(json.encode(data))\nend\n\n-- UI ----------------\nUI = {}\nUI.__index = UI;\n\nfunction UI.new(layer, layer2, layer3, f_xxs, f_xs, f_s, f_m, b_t, sw, sh)\n    local self = setmetatable({}, UI)\n    self.layer = layer\n    self.layer2 = layer2\n    self.layer3 = layer3\n    self.f_xxs = f_xxs\n    self.f_xs = f_xs\n    self.f_s = f_s\n    self.f_m = f_m\n    self.b_t = b_t\n    self.sw, self.sh = sw, sh\n    self.tempAlt = \"\"\n\n    self.dR = 0\n    self.dR2 = 0\n    self.dR3 = 0\n    self.vvSign = 1\n\n    self.t = getTime()\n    self.lt = self.t\n    self.dt = 0\n\n    self.frame = 0\n\n    self.targetFloor = 0\n    self.targetAltitude = 0\n\n    return self\nend\n\nfunction UI.drawFuelBars(self, layer, font, atmo, space, x, y, w, h, sp)\n    local cnt = 0\n    local tM = 30\n    if atmo ~= nil then\n        for i, tank in ipairs(atmo) do\n            local p = tank.c_volume * 100 / tank.volume\n            local color = {20 / 255, 100 / 255, 1, 0.1}\n            setNextFillColor(layer, color[1], color[2], color[3], color[4])\n            addBox(layer, x + tM, y + i * sp, w, h)\n            color[4] = 0.5\n            setNextFillColor(layer, color[1], color[2], color[3], color[4])\n            addBox(layer, x + tM, y + i * sp, w * p / 100, h)\n            color[4] = 0.5\n\n            local c = w / 10\n            local zw = w / c\n            for z = 1, c - 1 do\n                local zww = zw / 7\n                setNextFillColor(layer, 0, 0, 0, 1)\n                addBox(layer, x + tM + z * zw, y + i * sp, zww, h)\n            end\n            cnt = i\n        end\n    end\n\n    if space ~= nil then\n        for i, tank in ipairs(space) do\n            local p = tank.c_volume * 100 / tank.volume\n            local color = {1, 1, 6 / 255, 0.1}\n            setNextFillColor(layer, color[1], color[2], color[3], color[4])\n            addBox(layer, x + tM, y + i * sp, w, h)\n            color[4] = 0.5\n            setNextFillColor(layer, color[1], color[2], color[3], color[4])\n            addBox(layer, x + tM, y + i * sp, w * p / 100, h)\n\n            local c = w / 10\n            local zw = w / c\n            for z = 1, c - 1 do\n                local zww = zw / 7\n                setNextFillColor(layer, 0, 0, 0, 1)\n                addBox(layer, x + tM + z * zw, y + i * sp, zww, h)\n            end\n            cnt = i\n        end\n    end\nend\n\nfunction UI.loop(self)\n    self.t = getTime()\n    self.dt = math.max(self.t - self.lt, 0.0001)\n    self.lt = self.t\n\n    -- update\n    local data = getData()\n\n    -- DRAW ----------------------------------------------------------\n    -- BG\n    local bg = loadImage(\"assets.prod.novaquark.com/64852/fb21b87d-eb36-49cd-a1e2-24e8b9ea40cb.png\")\n    setNextRotation(self.layer, 90 * constants.deg2rad)\n    addImage(self.layer, bg, 0, 0, sw, sh)\n\n    self:drawFuelBars(self.layer2, self.f_s,\n                      data.atmoFuel, data.spaceFuel,\n                      290, -180, 390, 60, 80)\nend\n\nlayer = createLayer()\nlayer2 = createLayer()\nlayer3 = createLayer()\nsw, sh = getResolution()\nbaseFontSize = math.floor(sh / 20)\nbaseThick = math.floor(sh / 204.3)\nfont_xxs = loadFont(\"RobotoCondensed\", baseFontSize - 14)\nfont_xs = loadFont(\"RobotoCondensed\", baseFontSize - 6)\nfont_s = loadFont(\"RobotoCondensed\", baseFontSize + 4)\nfont_m = loadFont(\"RobotoMono-Bold\", baseFontSize + 6)\n\n-- rotate buy n degrees\nlocal deg = 90\nlocal rad = constants.deg2rad * deg\n\nsetLayerOrigin(layer, sw / 2 , sh / 2)\nsetLayerOrigin(layer2, sw / 2 , sh / 2)\nsetLayerOrigin(layer3, sw / 2 , sh / 2)\nsetLayerRotation(layer, rad)\nsetLayerRotation(layer2, rad)\nsetLayerRotation(layer3, rad)\n\nif not init then\n    init = true\n    ui = UI.new(layer, layer2, layer3, font_xxs, font_xs, font_s, font_m, baseThick, sw, sh)\nend\n\n-- main loop\nui:loop()\nrequestAnimationFrame(60)\n]]\n\nRSR = [[\nlocal json = require('dkjson')\n\n-- CONSTANTS ----------\nconstants = {}\nconstants.deg2rad = 0.0174532925199\nconstants.rad2deg = 57.2957795130\n\n-- helper functions ---\nfunction getData()\n    return json.decode(getInput()) or {}\nend\n\nfunction sendData(data)\n    setOutput(json.encode(data))\nend\n\n-- UI ----------------\nUI = {}\nUI.__index = UI;\n\nfunction UI.new(layer, layer2, layer3, f_xxs, f_xs, f_s, f_m, b_t, sw, sh)\n    local self = setmetatable({}, UI)\n    self.layer = layer\n    self.layer2 = layer2\n    self.layer3 = layer3\n    self.f_xxs = f_xxs\n    self.f_xs = f_xs\n    self.f_s = f_s\n    self.f_m = f_m\n    self.b_t = b_t\n    self.sw, self.sh = sw, sh\n    self.tempAlt = \"\"\n\n    self.dR = 0\n    self.dR2 = 0\n    self.dR3 = 0\n    self.vvSign = 1\n\n    self.t = getTime()\n    self.lt = self.t\n    self.dt = 0\n\n    self.frame = 0\n\n    self.targetFloor = 0\n    self.targetAltitude = 0\n\n    return self\nend\n\nfunction UI.drawFuelBars(self, layer, font, atmo, space, x, y, w, h, sp)\n    local cnt = 0\n    local tM = 30\n    if atmo ~= nil then\n        for i, tank in ipairs(atmo) do\n            local p = tank.c_volume * 100 / tank.volume\n            local color = {20 / 255, 100 / 255, 1, 0.1}\n            setNextFillColor(layer, color[1], color[2], color[3], color[4])\n            addBox(layer, x + tM, y + i * sp, w, h)\n            color[4] = 0.5\n            setNextFillColor(layer, color[1], color[2], color[3], color[4])\n            addBox(layer, x + tM, y + i * sp, w * p / 100, h)\n            color[4] = 0.5\n\n            local c = w / 10\n            local zw = w / c\n            for z = 1, c - 1 do\n                local zww = zw / 7\n                setNextFillColor(layer, 0, 0, 0, 1)\n                addBox(layer, x + tM + z * zw, y + i * sp, zww, h)\n            end\n            cnt = i\n        end\n    end\n\n    if space ~= nil then\n        for i, tank in ipairs(space) do\n            local p = tank.c_volume * 100 / tank.volume\n            local color = {1, 1, 6 / 255, 0.1}\n            setNextFillColor(layer, color[1], color[2], color[3], color[4])\n            addBox(layer, x + tM, y + i * sp, w, h)\n            color[4] = 0.5\n            setNextFillColor(layer, color[1], color[2], color[3], color[4])\n            addBox(layer, x + tM, y + i * sp, w * p / 100, h)\n\n            local c = w / 10\n            local zw = w / c\n            for z = 1, c - 1 do\n                local zww = zw / 7\n                setNextFillColor(layer, 0, 0, 0, 1)\n                addBox(layer, x + tM + z * zw, y + i * sp, zww, h)\n            end\n            cnt = i\n        end\n    end\nend\n\nfunction UI.loop(self)\n    self.t = getTime()\n    self.dt = math.max(self.t - self.lt, 0.0001)\n    self.lt = self.t\n\n    -- update\n    local data = getData()\n\n    -- DRAW ----------------------------------------------------------\n    -- BG\n    local bg = loadImage(\"assets.prod.novaquark.com/64852/fb21b87d-eb36-49cd-a1e2-24e8b9ea40cb.png\")\n    setNextRotation(self.layer, 90 * constants.deg2rad)\n    addImage(self.layer, bg, 0, 0, sw, sh)\n\n    self:drawFuelBars(self.layer2, self.f_s,\n                      data.atmoFuel, data.spaceFuel,\n                      290, -180, 390, 60, 80)\nend\n\nlayer = createLayer()\nlayer2 = createLayer()\nlayer3 = createLayer()\nsw, sh = getResolution()\nbaseFontSize = math.floor(sh / 20)\nbaseThick = math.floor(sh / 204.3)\nfont_xxs = loadFont(\"RobotoCondensed\", baseFontSize - 14)\nfont_xs = loadFont(\"RobotoCondensed\", baseFontSize - 6)\nfont_s = loadFont(\"RobotoCondensed\", baseFontSize + 4)\nfont_m = loadFont(\"RobotoMono-Bold\", baseFontSize + 6)\n\n-- rotate buy n degrees\nlocal deg = -90\nlocal rad = constants.deg2rad * deg\n\nsetLayerOrigin(layer, sw / 2 , sh / 2)\nsetLayerOrigin(layer2, sw / 2 , sh / 2)\nsetLayerOrigin(layer3, sw / 2 , sh / 2)\nsetLayerRotation(layer, rad)\nsetLayerRotation(layer2, rad)\nsetLayerRotation(layer3, rad)\n\nif not init then\n    init = true\n    ui = UI.new(layer, layer2, layer3, font_xxs, font_xs, font_s, font_m, baseThick, sw, sh)\nend\n\n-- main loop\nui:loop()\nrequestAnimationFrame(60)\n]]\n\nscreen_left.activate()\nscreen_left.setRenderScript(RSL)\nscreen_right.activate()\nscreen_right.setRenderScript(RSR)",
+      "filter": {
+        "args": [],
+        "signature": "onStart()",
+        "slotKey": "-1"
+      },
+      "key": "0"
+    },
+    {
+      "code": "local data = {}\nlocal atmo = getTanksByType(\"atmo\", self.core)\nlocal space = getTanksByType(\"space\", self.core)\nif #atmo > 0 then\n    data.atmoFuel = atmo\n    data.spaceFuel = nil\n    sendData2Screen(self.screen_left, data)\nend\nif #space > 0 then\n    data.atmoFuel = nil\n    data.spaceFuel = space\nend\n\nsendData2Screen(self.screen_right, data)",
+      "filter": {
+        "args": [],
+        "signature": "onUpdate()",
+        "slotKey": "-4"
+      },
+      "key": "1"
+    },
+    {
+      "code": "AFTH = 5 --export: the level of your \"Atmospheric fuel tank handling\" talent\nSFTH = 5 --export: the level of your \"Space fuel tank handling\" talent\nFTO = 5 --export: the level of your \"Fuel tank optimisation\" talent\nCO = 5 --export: the level of your \"container optimisation\" talent\n\n-- type: atmo | space\nfunction getTanksByType(type, core)\n    local elementIdList = core.getElementIdList()\n    local tanks = {}\n    local fuelMass = 0\n    local fth = 0\n    -- FTO\n    if type == \"atmo\" then\n        fuelMass = 4\n        fth = AFTH\n    elseif type == \"space\" then\n        fuelMass = 6\n        fth = SFTH\n    end\n\n    local fto = FTO * 5\n    local co = CO * 5\n    fth = fth * 20 / 100\n\n    for i, id in ipairs(elementIdList) do\n        local class = core.getElementClassById(id):lower()\n        local tank = {}\n        if (class:find(type .. \"fuelcontainer\")) then\n            local name = core.getElementNameById(id):lower()\n            if name:find(\" xs\") then\n                tank.volume = 100\n                tank.volume = tank.volume + tank.volume * fth\n                tank.unitMass = 35.03\n            elseif name:find(\" s\") then\n                tank.volume = 400\n                tank.volume = tank.volume + tank.volume * fth\n                tank.unitMass = 182.67\n            elseif name:find(\" m\") then\n                tank.volume = 1600\n                tank.volume = tank.volume + tank.volume * fth\n                tank.unitMass = 988.67\n            elseif name:find(\" l\") then\n                tank.volume = 12800\n                tank.volume = tank.volume + tank.volume * fth\n                tank.unitMass = 5480\n            end\n            tank.mass = core.getElementMassById(id) - tank.unitMass\n            tank.mass = tank.mass * 100 / (100 - fto - co)\n            tank.c_volume = tank.mass / fuelMass\n            table.insert(tanks, tank)\n        end\n    end\n    return tanks\nend\n\nfunction sendData2Screen(screen, data)\n    screen.setScriptInput(json.encode(data))\nend\n\nfunction getDataFromScreen(screen)\n    output = screen.getScriptOutput()\n    if string.len(output) == 0 then\n        return {}\n    end\n    data = json.decode(output) or {}\n    screen.clearScriptOutput()\n    return data\nend",
+      "filter": {
+        "args": [],
+        "signature": "onStart()",
+        "slotKey": "-5"
+      },
+      "key": "2"
+    }
+  ],
+  "methods": [],
+  "events": []
+}
