@@ -7,7 +7,9 @@ Version 3, 29 June 2007
 
 Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
 
-- which basically means that you not allowed to use it under DRM
+- This software is released for use on NON-DRM constructs under the GNU General Public Licence.
+- Under this licence, it may be used on NON-DRM constructs on the MMO DU server, and on private MyDU servers.
+- This software is NOT licenced for use on DRM constructs, on any DU or MyDU server.
 
 # Installation
 ## ship elements:
@@ -55,5 +57,8 @@ __!__ all parts listed above should be linked before you aply autoconf
     ![alt text](images/cradle.png)
 
 - doors should be connected to the relay of a cradle logic
+- example of a cradle logic
 
     ![alt text](images/cradle_logic.png)
+
+- there are two receivers which provide signal for a SR latch. Their channels should be set for a unique value. For that purpose we use channel "salt". Channel "salt" should be set in your elevator control's lua parameters and also used to name channels on your cradle's receivers with a pattern __dg_close_SALT/dg_open_SALT__ where SALT is your channel salt you set on elevator.
