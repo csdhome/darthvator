@@ -47,3 +47,13 @@ __!__ all parts listed above should be linked before you aply autoconf
 
 ## !whatever setup you choose you have to make a proper first launch!
 - in both easy and not easy setup modes you have to launch it from it's base position, so it will remember correct base altitude
+
+## CRADLE
+- for the cradle you can use __sliding doors__ of any size, but ensure yourself that at least one of them is able to cover your elevator's telemeter.
+- cradle example:
+
+    ![alt text](images/cradle.png)
+
+- doors should be connected to the relay of a cradle logic
+
+    ![alt text](images/cradle_logic.png)
