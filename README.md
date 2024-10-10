@@ -19,7 +19,7 @@ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
 - __databank__ __[necessary]__
 - __telemeter__ __[optional]__ _really helps with precise landing. Auto shutdown is not possible without_
 - __emitter__ __[optional]__ _used for automatic docking_
-- __radar__ __[optional]__ _use at your own risk bc of a wellknown radar bug_
+- __radar__ __[optional]__ _use at your own risk bc of a well known radar bug_
 
 __!__ all parts listed above should be linked before you aply autoconf
 
